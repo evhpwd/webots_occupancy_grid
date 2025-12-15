@@ -11,28 +11,14 @@ class PioneerSimpleProxSensors:
         self.robot = robot
         timestep = int(robot.getBasicTimeStep())
 
-        # Dimensions of the Robot
-        # Note that the dimensions of the robot are not strictly circular, as 
-        # according to the data sheet the length is 485mm, and width is 381mm
-        # so we assume for now the aprox average of the two (i.e. 430mm), in meters
         self.radius = 0.215
 
-        # Insert Constructor Code Here
-        # ------------------------------------------
         # set up proximity detectors
         self.ps = []
         for i in range(self.MAX_NUM_SENSORS):
             sensor_name = 'so' + str(i)
             self.ps.append(robot.getDevice(sensor_name))
             self.ps[i].enable(timestep)
-    
-
-        # The following array determines the orientation of each sensor, based on the
-        # details of the Pioneer Robot Stat sheet.  Note that the positions may be slightly
-        # inaccurate as the pioneer is not perfectly round.  Also these values are in degrees
-        # and so may require converting to radians.  Finally, we assume that the front of the
-        # robot is between so3 and so4.  As the angle between these is 20 deg, we assume that 
-        # they are 10 deg each from the robot heading         
 
         ps_degAngles = [
             90, 50, 30, 10, -10, -30, -50, -90,

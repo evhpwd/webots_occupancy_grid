@@ -1,0 +1,50 @@
+#VRML_SIM R2025a utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/floors/protos/RectangleArena.proto"
+IMPORTABLE EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/adept/pioneer3/protos/Pioneer3dx.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/apartment_structure/protos/Wall.proto"
+
+WorldInfo {
+}
+Viewpoint {
+  orientation -0.5773495058987607 0.5773487746558953 0.5773525270073676 2.094402013229521
+  position -0.06981687420624338 0.18679900213370715 9.552828650492204
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+RectangleArena {
+  floorSize 6 6
+  wallHeight 0.4
+}
+Wall {
+  rotation 0 0 1 0.785398
+  size 2 2 0.5
+}
+Pioneer3dx {
+  translation -2 2 0.095
+  controller "closed_loop_controller"
+  supervisor TRUE
+  extensionSlot [
+    Shape {
+      appearance DEF BUMPER_APP Appearance {
+      }
+      geometry DEF BUMPER Box {
+        size 0.01 0.15 0.1
+      }
+    }
+    TouchSensor {
+      translation 0.18 -0.1 0.025
+      name "right touch sensor"
+      boundingObject USE BUMPER
+    }
+    TouchSensor {
+      translation 0.18 0.1 0.025
+      name "left touch sensor"
+      boundingObject USE BUMPER
+    }
+  ]
+}

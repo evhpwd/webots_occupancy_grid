@@ -1,0 +1,28 @@
+PROTO TouchExtension [
+  field SFVec3f touch1Translation 0.18 -0.1 0.02
+  field SFVec3f touch2Translation 0.18 0.1 0.02
+]
+{
+  Group {
+    children [
+      Shape {
+        DEF BUMPER
+        geometry Box {
+          size 0.01 0.15 0.1
+        }
+      }
+
+      TouchSensor {
+        name "left touch sensor"
+        translation IS touch1Translation
+        boundingObject USE BUMPER
+      }
+
+      TouchSensor {
+        name "right touch sensor"
+        translation IS touch2Translation
+        boundingObject USE BUMPER
+      }
+    ]
+  }
+}

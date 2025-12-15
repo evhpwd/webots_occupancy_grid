@@ -2,13 +2,11 @@ from controller import Robot, TouchSensor
 import math
 import pose
 import pioneer_simpleproxsensors as psps
-import pioneer_bumpersensors as pbps
 
 class PioneerCLNav:
     """ A custom class to demonstrate a closed loop controller with bug1 """
 
-    WALLFOLLOWING = True
-    GOALSEEKING = False
+    STATES = ["GOALSEEKING", "AVOIDING", "WALLFOLLOWING"]
     WF_HIT = 0
     WF_SEARCH = 1
     WF_LEAVE = 2
@@ -32,13 +30,17 @@ class PioneerCLNav:
         self.robot = robot
         self.robot_node = self.robot.getSelf()    # reference to the robot node
         self.pps = prox_sensors                   # reference to the sensor model
+        
         self.left_ts = self.robot.getDevice("left touch sensor")
         self.right_ts = self.robot.getDevice("right touch sensor")
         self.left_ts.enable(timestep)
         self.right_ts.enable(timestep)
+        self.bump_timestep = None
+        self.bump_lr = None
+        
         self.goal = self.get_real_pose()          # assume the goal is our current position
         self.start = self.get_real_pose()         # retain our initial position
-        self.state = self.GOALSEEKING
+        self.state = self.STATES[0]
 
         self.prev_error = 0              # Reset values used by the PID controller
         self.total_error = 0             # Reset values used by the PID controller
@@ -103,38 +105,50 @@ class PioneerCLNav:
             
         return (kp * prop) + (ki * self.total_error) + (kd * self.pid_diff)
 
-    def check_bumper(self):
-        # if bumper not colliding, return false
-        # otherwise, move back a bit
+    # ==================================================================================
+    def check_bumpers(self):
         left_bump = self.left_ts.getValue()
         right_bump = self.right_ts.getValue()
+        print("checking bump:", left_bump, right_bump)
         if ((left_bump == 0 and right_bump == 0) or math.isnan(left_bump) or math.isnan(right_bump)):
-            return False
-            
-        s = str(left_bump) + " " + str(right_bump)
+            self.bump_timestep = None
+            self.bump_lr = None
+            return
+        
+        print("bump confirmed")
+        self.state = "AVOIDING"
+        self.bump_timestep = self.robot.getTime() // (self.robot.getBasicTimeStep() / 100)
+        if (left_bump == 1):
+            self.bump_lr = "left"
+        if (right_bump == 1):
+            self.bump_lr = "right"
+
+    def avoid(self):
+        num_reverse_steps = 8
+        num_rotate_steps = 1
+        num_steps = num_reverse_steps + num_rotate_steps
         speed = 6
         right_mod = 1
         left_mod = 1
-        if (left_bump):
-            s += " left bump!"
-            left_mod = -1/2
-        if (right_bump):
-            s += " right bump!"
-            right_mod = -1/2
-        print(s)
+        if (self.bump_lr == "left"):
+            left_mod = 1/2
+        elif (self.bump_lr == "right"):
+            right_mod = 1/2
         
-        current_time = self.robot.getTime()
-        stop_time = current_time + 20
-        while (self.robot.getTime() < stop_time):
-            if (current_time < stop_time - 5):
-                lv = -speed/2
-                rv = -speed/2
-            else:
-                lv = speed * left_mod
-                rv = speed * right_mod
-            self.set_velocity(lv, rv)
+        current_timestep = self.robot.getTime() // (self.robot.getBasicTimeStep() / 100)
+        current_step = current_timestep - self.bump_timestep
+        print(self.robot.getTime(), self.robot.getBasicTimeStep(), self.bump_timestep, current_timestep, current_step)
+        if (current_step > num_steps):
+            self.state = "GOALSEEKING"
+            return
         
-        return True
+        if (current_step <= num_reverse_steps):
+            lv = -speed/2
+            rv = -speed/2
+        else:
+            lv = speed * left_mod
+            rv = speed * right_mod
+        self.set_velocity(lv, rv)
 
     # ==================================================================================
     def adjust_velocity(self, bearing, velocity):
@@ -174,7 +188,7 @@ class PioneerCLNav:
                   f"goal dist {p.get_range(self.goal):.03f} "+
                   f"bearing: {bearing:.03f} ")
             if (self.rotate(bearing, self.WF_VEL)):
-                self.state = self.GOALSEEKING
+                self.state = "GOALSEEKING"
                 self.start = self.get_real_pose()  # reset start point
             return
         
@@ -243,7 +257,7 @@ class PioneerCLNav:
     
         obstacle_dist = self.range_to_frontobstacle()
         if (obstacle_dist <= self.WF_DIST):
-            self.state = self.WALLFOLLOWING
+            self.state = "WALLFOLLOWING"
             self.wf_state = self.WF_HIT
             self.prev_error = 0       # Reset PID controller values
             self.total_error = 0      # Reset PID controller values 
@@ -299,16 +313,26 @@ class PioneerCLNav:
         if (p.get_range(self.goal) < self.GOAL_RADIUS):
             self.stop()
             return True
-        
-        if (self.check_bumper()):
-            print("bump!")
-        if (self.state == self.GOALSEEKING):
-            self.goal_seeking(p)
+            
+        print(self.state)
+        if (self.state not in self.STATES):
+            print("Invalid nav state")
+            self.stop()
+            self.state = self.STATES[0]
+            return False
+    
+        if (self.state == "AVOIDING"):
+            self.avoid()
         else:
-            self.bug1(p)
+            self.check_bumpers()
+            if (self.state == "GOALSEEKING"):
+                self.goal_seeking(p)
+            if (self.state == "WALLFOLLOWING"):
+                self.bug1(p)
         return False    # Not yet found goal
     
     def set_goal(self, p):
         self.goal = pose.Pose(p.x, p.y, p.theta)
+        print(p.x, p.y, p.theta)
         self.start = self.get_real_pose()
         self.update()

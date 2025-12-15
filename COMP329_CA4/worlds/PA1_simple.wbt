@@ -1,0 +1,109 @@
+#VRML_SIM R2025a utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/floors/protos/RectangleArena.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/apartment_structure/protos/Wall.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/robots/adept/pioneer3/protos/Pioneer3dx.proto"
+
+WorldInfo {
+}
+Viewpoint {
+  fieldOfView 1
+  orientation -0.5773502691896258 0.5773502691896258 0.5773502691896258 2.0944
+  position 0.00099885806251776 1.297393329435792e-05 9.21099361335259
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+DEF ARENA RectangleArena {
+  floorSize 6 6
+  wallHeight 0.4
+}
+Pioneer3dx {
+  hidden position_0_0 3.6801303109449606e-07
+  hidden position_0_1 -6.185747288553042e-10
+  hidden position_0_2 6.542142447282745e-10
+  hidden linearVelocity_0 -2.759442051116309e-05 9.755272615063126e-07 -0.00010468376758523645
+  hidden angularVelocity_0 -6.303244013246887e-06 -0.00019051609241237656 4.668962458771374e-09
+  hidden rotation_1 0.5773504108379116 -0.5773501983654761 -0.5773501983654635 2.0943947875275906
+  hidden position_1_0 -0.044749734781992956
+  hidden linearVelocity_1 -5.032994386658215e-06 3.7305345232638784e-07 -0.00012582004375298684
+  hidden angularVelocity_1 -6.3027498829166075e-06 -0.00019050574259672626 5.099519863239614e-09
+  hidden rotation_2 -1 0 0 0.044749734781988994
+  hidden linearVelocity_2 -8.520195869403342e-07 2.5109927809788534e-07 -0.000125906574280284
+  hidden angularVelocity_2 -6.302273219251932e-06 -2.272057971318355e-05 1.3987546643808792e-10
+  hidden rotation_4 0.5773502693086705 -0.5773502693086705 -0.5773502689515362 2.0943950003571343
+  hidden linearVelocity_4 -1.8588354677662496e-05 6.072944175230154e-07 -9.070128868829602e-05
+  hidden angularVelocity_4 -6.306260008552203e-06 -0.00019051134625818066 4.010852141940945e-09
+  hidden rotation_9 0.5773502690637222 -0.5773502690637222 -0.577350269441433 2.0943949996222897
+  hidden linearVelocity_9 -1.8570002968182344e-05 6.079824242809736e-07 -8.865569691184682e-05
+  hidden angularVelocity_9 -6.3063622352128626e-06 -0.00019050814111362766 3.976129241217793e-09
+  translation -2.0033726575908988 -2.000000064580504 0.09482649608334823
+  rotation 2.2842172911614703e-05 -0.9999999996578073 1.2752290059142523e-05 0.03459969669587598
+  controller "ca4_controller"
+  supervisor TRUE
+  extensionSlot [
+    Shape {
+      geometry DEF BUMPER Box {
+        size 0.01 0.15 0.1
+      }
+    }
+    TouchSensor {
+      translation 0.18 -0.1 0.02
+      name "right touch sensor"
+      boundingObject USE BUMPER
+    }
+    TouchSensor {
+      translation 0.18 0.1 0.02
+      name "left touch sensor"
+      boundingObject USE BUMPER
+    }
+    Display {
+      width 300
+      height 300
+    }
+  ]
+}
+Wall {
+  translation -1.75 -0.8 0
+  name "NW Diag (2)"
+  size 0.4 1.6 0.4
+}
+Wall {
+  translation 0.2 -0.8 0
+  name "NW Diag (1)"
+  size 0.4 1.6 0.4
+}
+Wall {
+  translation -1.5 1.75 0
+  name "Spiral (2)"
+  size 1 0.4 0.4
+}
+Wall {
+  translation 1 1.75 0
+  name "Spiral (1)"
+  size 1 0.4 0.4
+}
+Wall {
+  translation -0.6 -1.4 0
+  name "Spiral (4)"
+  size 2 0.4 0.4
+}
+Wall {
+  translation -0.8 1.35 0
+  name "Spiral (3)"
+  size 0.4 1.2 0.4
+}
+Wall {
+  translation 1.7 0.85 0
+  name "Spiral (5)"
+  size 0.4 2.2 0.4
+}
+Wall {
+  translation 2.4 -2.4 0
+  rotation 0 0 1 0.785
+  name "Diagonal"
+  size 1.5 0.05 0.4
+}
